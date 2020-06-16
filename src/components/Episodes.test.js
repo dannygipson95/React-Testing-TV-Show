@@ -1,21 +1,9 @@
 import React from 'react'
-import {render} from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import App from './App'
-import {fetchShow as mockFetchShow} from './api/fetchShow'
-
-jest.mock('./api/fetchShow')
+import {render, findAllByAltText} from '@testing-library/react'
+import Episodes from './Episodes'
 
 const showData = {
-    data:{
-        name: "Stranger Things",
-        image: {
-        medium: "http://static.tvmaze.com/uploads/images/medium_portrait/200/501942.jpg",
-        original: "http://static.tvmaze.com/uploads/images/original_untouched/200/501942.jpg"
-        },
-        summary: "<p>A love letter to the '80s classics that captivated a generation, <b>Stranger Things</b> is set in 1983 Indiana, where a young boy vanishes into thin air. As friends, family and local police search for answers, they are drawn into an extraordinary mystery involving top-secret government experiments, terrifying supernatural forces and one very strange little girl.</p>",
-        _embedded:{
-            episodes:[
+    data:[
     {
         "id": 553946,
         "url": "http://www.tvmaze.com/episodes/553946/stranger-things-1x01-chapter-one-the-vanishing-of-will-byers",
@@ -78,29 +66,23 @@ const showData = {
                 "href": "http://api.tvmaze.com/episodes/578664"
             }
         }
-    },]}
-    }
+    },]
 }
 
-test('App successfully renders data from api', async()=>{
-    mockFetchShow.mockResolvedValueOnce(showData)
-    
-    const {findByTestId, findByText, findAllByRole, findAllByText} = render(<App/>)
-
-    const title = await findByTestId('title')
-    expect(title).toBeVisible();
-    
-    const button = await findByText(/select a season/i);
-    userEvent.click(button)
-
-    const seasons = await findAllByRole(/option/i)
-    expect(seasons).toHaveLength(1);
-    seasons.forEach(season=>{
-        expect(season).toBeVisible();
-    })
-    userEvent.click(seasons[0]);
-
+test("episodes are successfully rendered", async () => {
+    const { findAllByText, findAllByAltText} = render(
+      <Episodes episodes={showData.data} />
+    );
+  
     const episodes = await findAllByText(/chapter/i);
     expect(episodes).toHaveLength(3);
-}
-)
+    episodes.forEach(episode=>{
+        expect(episode).toBeVisible();
+    })
+    
+    const images = await findAllByAltText(/chapter/i);
+    expect(images).toHaveLength(3);
+    images.forEach(image =>{
+        expect(image).toBeVisible();
+    })
+});
